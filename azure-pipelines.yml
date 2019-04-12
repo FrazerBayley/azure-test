@@ -1,46 +1,29 @@
-jobs:
-- job: BuildLintUnitTest
-  displayName: Build, Lint and Unit Test
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-  - bash: echo Hello World
-- job: BuildLintUnitTestAndTag
-  displayName: Build, Lint, Unit Test and Tag
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - bash: "echo This is amazing!
-
-#- stage: ContainerizeAndIntegrationTests
-#  dependsOn: BuildAndUnitTest
-#  condition: succeeded()
-#  jobs:
-#  - job: BuildContainer
-#    pool:
-#      vmImage: 'Ubuntu-16.04'
-#    steps:
-#    - script: echo Building Container
-#  - job: IntegrationTests
-#    dependsOn: BuildContainer
-#    condition: succeeded()
-#    pool:
-#      vmImage: 'Ubuntu-16.04'
-#    steps:
-#    - script: echo Integration Tests
-#  - job: StoreContainer
-#    dependsOn: IntegrationTests
-#    condition: succeeded()
-#    pool:
-#      vmImage: 'Ubuntu-16.04'
-#    steps:
-#    - script: echo Deploying container
-#- stage: DeployToStaging
-#  dependsOn: ContainerizeAndIntegrationTests
-#  condition: succeeded()
-#  jobs:
-#  - job: DeployToStaging
-#    pool:
-#      vmImage: 'Ubuntu-16.04'
-#    steps:
-#    - script: echo Deploying to Staging
+stages:
+- stage: Commit
+  jobs:
+  - job: BuildLintUnitTest
+    displayName: Build, Lint and Unit Test
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+    - bash: echo Build, Lint and Test
+- stage: Merge
+  dependsOn: Commit
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), not(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/v')))
+  jobs:
+  - job: TagPR
+    displayName: Tag Pull Request
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+    - bash: echo Tag
+- stage: MergeRelease
+  dependsOn: Commit
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/v'))
+  jobs:
+  - job: TagPRRelease
+    displayName: Tag Pull Request and Create Release
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+    - bash: echo Tag and Release
