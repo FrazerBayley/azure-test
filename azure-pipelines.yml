@@ -16,7 +16,7 @@ stages:
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
-    - bash: echo Tag
+    - bash: echo $(Build.SourceBranch)
 - stage: MergeRelease
   dependsOn: Commit
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/v'))
@@ -26,4 +26,4 @@ stages:
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
-    - bash: echo Tag and Release
+    - bash: echo $(Build.SourceBranch)
