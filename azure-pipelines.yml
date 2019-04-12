@@ -16,4 +16,4 @@ stages:
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
-    - bash: echo $(System.PullRequest.SourceBranch); echo $(Build.SourceBranch)
+    - bash: echo $(Build.SourceBranch); echo $(git log)
