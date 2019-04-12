@@ -9,21 +9,11 @@ stages:
     - bash: echo Build, Lint and Test
 - stage: Merge
   dependsOn: Commit
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), not(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/v')))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - job: TagPR
     displayName: Tag Pull Request
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
-    - bash: echo $(Build.SourceBranch)
-- stage: MergeRelease
-  dependsOn: Commit
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/v'))
-  jobs:
-  - job: TagPRRelease
-    displayName: Tag Pull Request and Create Release
-    pool:
-      vmImage: 'Ubuntu-16.04'
-    steps:
-    - bash: echo $(Build.SourceBranch)
+    - bash: echo $(System.PullRequest.SourceBranch); echo $(Build.SourceBranch)
